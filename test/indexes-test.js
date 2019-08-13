@@ -10,7 +10,7 @@ describe('lib/operations/indexes', () => {
         'd'
       ]);
       expect(sql).to.equal(
-        'CREATE  INDEX  "a"."b_c_d_index" ON "a"."b" ("c", "d");'
+        'CREATE  INDEX  "b_c_d_index" ON "a"."b" ("c", "d");'
       );
     });
 
