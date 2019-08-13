@@ -1,39 +1,44 @@
-const { expect } = require("chai");
-const Tables = require("../lib/operations/tables");
+const { expect } = require('chai');
+const Tables = require('../lib/operations/tables');
+const { options } = require('./utils');
 
-describe("lib/operations/tables", () => {
-  describe(".create", () => {
-    it("check schemas can be used", () => {
-      const sql = Tables.createTable()(
-        { schema: "my_schema", name: "my_table_name" },
-        { id: "serial" }
+describe('lib/operations/tables', () => {
+  describe('.create', () => {
+    it('check schemas can be used', () => {
+      const sql = Tables.createTable(options)(
+        { schema: 'my_schema', name: 'my_table_name' },
+        { id: 'serial' }
       );
       expect(sql).to.equal(`CREATE TABLE "my_schema"."my_table_name" (
   "id" serial
 );`);
     });
 
-    it("check shorthands work", () => {
-      const sql = Tables.createTable()("my_table_name", { id: "id" });
+    it('check shorthands work', () => {
+      const sql = Tables.createTable(options)('my_table_name', { id: 'id' });
       expect(sql).to.equal(`CREATE TABLE "my_table_name" (
   "id" serial PRIMARY KEY
 );`);
     });
 
-    it("check custom shorthands can be used", () => {
+    it('check custom shorthands can be used', () => {
       const sql = Tables.createTable({
-        id: { type: "uuid", primaryKey: true }
-      })("my_table_name", { id: "id" });
+        ...options,
+        typeShorthands: {
+          ...options.typeShorthands,
+          id: { type: 'uuid', primaryKey: true }
+        }
+      })('my_table_name', { id: 'id' });
       expect(sql).to.equal(`CREATE TABLE "my_table_name" (
   "id" uuid PRIMARY KEY
 );`);
     });
 
-    it("check schemas can be used for foreign keys", () => {
-      const sql = Tables.createTable()("my_table_name", {
+    it('check schemas can be used for foreign keys', () => {
+      const sql = Tables.createTable(options)('my_table_name', {
         parent_id: {
-          type: "integer",
-          references: { schema: "a", name: "b" }
+          type: 'integer',
+          references: { schema: 'a', name: 'b' }
         }
       });
       expect(sql).to.equal(`CREATE TABLE "my_table_name" (
@@ -41,12 +46,12 @@ describe("lib/operations/tables", () => {
 );`);
     });
 
-    it("check match clause can be used for foreign keys", () => {
-      const sql = Tables.createTable()("my_table_name", {
+    it('check match clause can be used for foreign keys', () => {
+      const sql = Tables.createTable(options)('my_table_name', {
         parent_id: {
-          type: "integer",
-          references: { schema: "a", name: "b" },
-          match: "SIMPLE"
+          type: 'integer',
+          references: { schema: 'a', name: 'b' },
+          match: 'SIMPLE'
         }
       });
       expect(sql).to.equal(`CREATE TABLE "my_table_name" (
@@ -54,21 +59,21 @@ describe("lib/operations/tables", () => {
 );`);
     });
 
-    it("check defining column can be used for foreign keys", () => {
-      const sql = Tables.createTable()("my_table_name", {
-        parent_id: { type: "integer", references: "a.b(id)" }
+    it('check defining column can be used for foreign keys', () => {
+      const sql = Tables.createTable(options)('my_table_name', {
+        parent_id: { type: 'integer', references: 'a.b(id)' }
       });
       expect(sql).to.equal(`CREATE TABLE "my_table_name" (
   "parent_id" integer REFERENCES a.b(id)
 );`);
     });
 
-    it("check multicolumn primary key name does not include schema", () => {
-      const sql = Tables.createTable()(
-        { schema: "s", name: "my_table_name" },
+    it('check multicolumn primary key name does not include schema', () => {
+      const sql = Tables.createTable(options)(
+        { schema: 's', name: 'my_table_name' },
         {
-          a: { type: "integer", primaryKey: true },
-          b: { type: "varchar", primaryKey: true }
+          a: { type: 'integer', primaryKey: true },
+          b: { type: 'varchar', primaryKey: true }
         }
       );
       expect(sql).to.equal(`CREATE TABLE "s"."my_table_name" (
@@ -78,19 +83,19 @@ describe("lib/operations/tables", () => {
 );`);
     });
 
-    it("check table references work correctly", () => {
-      const sql = Tables.createTable()(
-        "my_table_name",
+    it('check table references work correctly', () => {
+      const sql = Tables.createTable(options)(
+        'my_table_name',
         {
-          a: { type: "integer" },
-          b: { type: "varchar" }
+          a: { type: 'integer' },
+          b: { type: 'varchar' }
         },
         {
           constraints: {
             foreignKeys: [
               {
-                columns: ["a", "b"],
-                references: "otherTable (A, B)"
+                columns: ['a', 'b'],
+                references: 'otherTable (A, B)'
               }
             ]
           }
@@ -103,16 +108,16 @@ describe("lib/operations/tables", () => {
 );`);
     });
 
-    it("check table unique constraint work correctly", () => {
-      const sql = Tables.createTable()(
-        "my_table_name",
+    it('check table unique constraint work correctly', () => {
+      const sql = Tables.createTable(options)(
+        'my_table_name',
         {
-          a: { type: "integer" },
-          b: { type: "varchar" }
+          a: { type: 'integer' },
+          b: { type: 'varchar' }
         },
         {
           constraints: {
-            unique: ["a", "b"]
+            unique: ['a', 'b']
           }
         }
       );
@@ -123,17 +128,17 @@ describe("lib/operations/tables", () => {
 );`);
     });
 
-    it("check table unique constraint work correctly for array of arrays", () => {
-      const sql = Tables.createTable()(
-        "my_table_name",
+    it('check table unique constraint work correctly for array of arrays', () => {
+      const sql = Tables.createTable(options)(
+        'my_table_name',
         {
-          a: { type: "integer" },
-          b: { type: "varchar" },
-          c: { type: "varchar" }
+          a: { type: 'integer' },
+          b: { type: 'varchar' },
+          c: { type: 'varchar' }
         },
         {
           constraints: {
-            unique: [["a", "b"], "c"]
+            unique: [['a', 'b'], 'c']
           }
         }
       );
@@ -147,9 +152,9 @@ describe("lib/operations/tables", () => {
     });
   });
 
-  describe(".dropColumns", () => {
-    it("check multiple columns can be dropped", () => {
-      const sql = Tables.dropColumns("my_table_name", ["c1", "c2"]);
+  describe('.dropColumns', () => {
+    it('check multiple columns can be dropped', () => {
+      const sql = Tables.dropColumns(options)('my_table_name', ['c1', 'c2']);
       expect(sql).to.equal(`ALTER TABLE "my_table_name"
   DROP "c1",
   DROP "c2";`);
