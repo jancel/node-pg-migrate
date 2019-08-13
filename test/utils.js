@@ -1,11 +1,9 @@
-const { schemalize } = require('../lib//utils');
+const { createSchemalize } = require('../lib/utils');
 
+const schemalize = createSchemalize(false);
 const options = {
   typeShorthands: {},
-  literal: val => {
-    const schemalized = schemalize(val, v => v);
-    return `"${schemalized}"`;
-  }
+  literal: val => `"${schemalize(val)}"`
 };
 
 module.exports = {
