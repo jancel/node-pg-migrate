@@ -1,10 +1,9 @@
-const { createSchemalize, quote } = require('../lib/utils');
+const { createSchemalize } = require('../lib/utils');
 
-const schemalize = createSchemalize(false);
 const options = {
   typeShorthands: {},
-  schemalize,
-  literal: quote(schemalize)
+  schemalize: createSchemalize(false, false),
+  literal: createSchemalize(false, true)
 };
 
 module.exports = {
